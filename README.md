@@ -32,5 +32,6 @@ sudo make install
 ## 3. cuda安装
 略
 ## 参考项目
+- 以下项目为同一大厂大佬开发（有同源付费课程），代码质量5星，讲课水平2星
 - https://github.com/zjhellofss/KuiperLLama
 - https://github.com/zjhellofss/KuiperInfer
