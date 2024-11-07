@@ -31,7 +31,21 @@ sudo make install
 
 ## 3. cuda安装
 略
+
+## 4. Eigen 配置
+### 源代码下载
+- https://gitlab.com/libeigen/eigen/-/releases/3.4.0
+### 解压
+- 按以下命令进行安装
+```
+mkdir build
+cd build
+cmake ..
+sudo make install
+//拷贝头文件到系统的用户头文件中，方便后期管理
+sudo cp -r /home/【你的路径】/eigen-3.4.0  /usr/local/include/eigen3 
+```
+### 更新CMakeLists.txt文件（两处）
 ## 参考项目
-- 以下项目为同一大厂大佬开发（有同源付费课程），代码质量5星，讲课水平2星
 - https://github.com/zjhellofss/KuiperLLama
 - https://github.com/zjhellofss/KuiperInfer

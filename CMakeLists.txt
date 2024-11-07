@@ -18,25 +18,52 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 
 find_package(GTest REQUIRED)
 find_package(glog REQUIRED)
+find_package(Eigen3 REQUIRED)# 新增
 
-aux_source_directory(project/src/ DIR_MAIN)
-aux_source_directory(project/src/operators/gpu/ DIR_KERNEL_CUDA)
-aux_source_directory(project/src/operators/ DIR_OPERATORS)
-aux_source_directory(project/src/base/ DIR_BASE)
+include_directories(${EIGEN3_INCLUDE_DIRS}) # 新增
 
-add_library(cudalearn SHARED ${DIR_KERNEL_CUDA} ${DIR_BASE} ${DIR_MAIN} ${DIR_OPERATORS})
+# 显式指定源文件
+set(DIR_SRC
+    ${CMAKE_SOURCE_DIR}/project/src/base/allocator.cpp
+    ${CMAKE_SOURCE_DIR}/project/src/base/base.cpp
+    ${CMAKE_SOURCE_DIR}/project/src/base/cpu_allocator.cpp
+    ${CMAKE_SOURCE_DIR}/project/src/base/gpu_allocator.cpp
+    ${CMAKE_SOURCE_DIR}/project/src/base/memory_manager.cpp
+)
 
-target_link_libraries(cudalearn glog::glog gtest gtest_main pthread cudart)
-target_link_directories(cudalearn PUBLIC ${CMAKE_CUDA_COMPILER_LIBRARY_ROOT}/lib64)
 
-target_include_directories(cudalearn PUBLIC ${glog_INCLUDE_DIR})
-target_include_directories(cudalearn PUBLIC ${PROJECT_SOURCE_DIR}/project/include)
-target_include_directories(cudalearn PUBLIC ${PROJECT_SOURCE_DIR}/project/include/base)
-target_include_directories(cudalearn PUBLIC ${PROJECT_SOURCE_DIR}/project/src/operators)
-target_include_directories(cudalearn PUBLIC ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
+set(DIR_OP
+    ${CMAKE_SOURCE_DIR}/project/src/operators/gpu/matrix_operator.cu
+    ${CMAKE_SOURCE_DIR}/project/src/operators/gpu/stencil_1d_operator.cu
+    ${CMAKE_SOURCE_DIR}/project/src/operators/gpu/vec_add_operator.cu
+    ${CMAKE_SOURCE_DIR}/project/src/operators/interface.cpp
+)
+
+
+
+
+# aux_source_directory(project/src/ DIR_MAIN)
+# aux_source_directory(project/src/operators/gpu/ DIR_KERNEL_CUDA)
+# aux_source_directory(project/src/operators/ DIR_OPERATORS)
+# aux_source_directory(project/src/base/ DIR_BASE)
+
+add_library(LLMInfer SHARED ${DIR_SRC} ${DIR_OP})
+
+
+target_link_libraries(LLMInfer glog::glog gtest gtest_main pthread cudart)
+
+target_link_directories(LLMInfer PUBLIC ${CMAKE_CUDA_COMPILER_LIBRARY_ROOT}/lib64)
+
+target_include_directories(LLMInfer PUBLIC ${EIGEN3_INCLUDE_DIRS}) # 新增
+target_include_directories(LLMInfer PUBLIC ${glog_INCLUDE_DIR})
+target_include_directories(LLMInfer PUBLIC ${PROJECT_SOURCE_DIR}/project/include)
+target_include_directories(LLMInfer PUBLIC ${PROJECT_SOURCE_DIR}/project/include/base)
+target_include_directories(LLMInfer PUBLIC ${PROJECT_SOURCE_DIR}/project/src/operators)
+target_include_directories(LLMInfer PUBLIC ${PROJECT_SOURCE_DIR}/project/src/operators/gpu)
+target_include_directories(LLMInfer PUBLIC ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
 
 # 启用了 CUDA 的可分离编译功能（Separable Compilation），以便分模块编译 CUDA 代码：
-set_target_properties(cudalearn PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+set_target_properties(LLMInfer PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
 add_subdirectory(test)
 
@@ -53,7 +80,7 @@ target_include_directories(demo PUBLIC ${PROJECT_SOURCE_DIR}/project/include)
 target_link_directories(demo PUBLIC ${PROJECT_SOURCE_DIR}/lib)
 
 target_link_libraries(demo ${link_ext_lib})
-target_link_libraries(demo cudalearn)
+target_link_libraries(demo LLMInfer)
 
 set_target_properties(demo PROPERTIES WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 set_target_properties(demo PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
