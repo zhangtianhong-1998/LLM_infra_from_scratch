@@ -23,6 +23,19 @@ namespace mbase
         Float64 = 4,
     };
 
+    // 返回数据类型的字节大小
+    inline size_t DataTypeSize(DataType dtype) 
+    {
+        switch (dtype) {
+            case DataType::Float32: return sizeof(float);
+            case DataType::Float64: return sizeof(double);
+            case DataType::Int8:    return sizeof(int8_t);
+            case DataType::Int32:   return sizeof(int32_t);
+            default:
+                throw std::invalid_argument("Unknown DataType.");
+        }
+    }
+
     // 防止对象被拷贝或赋值的基类 这个类通过删除拷贝构造函数和赋值运算符，使得任何继承自它的类都不能被拷贝或赋值。
     class NoCopyable 
     {

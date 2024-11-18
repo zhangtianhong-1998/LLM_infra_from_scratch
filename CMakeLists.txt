@@ -29,6 +29,7 @@ set(DIR_SRC
     ${CMAKE_SOURCE_DIR}/project/src/base/cpu_allocator.cpp
     ${CMAKE_SOURCE_DIR}/project/src/base/gpu_allocator.cpp
     ${CMAKE_SOURCE_DIR}/project/src/base/memory_manager.cpp
+    ${CMAKE_SOURCE_DIR}/project/src/tensor/tensor.cpp
 )
 
 
@@ -58,6 +59,7 @@ target_include_directories(LLMInfer PUBLIC ${EIGEN3_INCLUDE_DIRS}) # 新增
 target_include_directories(LLMInfer PUBLIC ${glog_INCLUDE_DIR})
 target_include_directories(LLMInfer PUBLIC ${PROJECT_SOURCE_DIR}/project/include)
 target_include_directories(LLMInfer PUBLIC ${PROJECT_SOURCE_DIR}/project/include/base)
+target_include_directories(LLMInfer PUBLIC ${PROJECT_SOURCE_DIR}/project/include/tensor)
 target_include_directories(LLMInfer PUBLIC ${PROJECT_SOURCE_DIR}/project/src/operators)
 target_include_directories(LLMInfer PUBLIC ${PROJECT_SOURCE_DIR}/project/src/operators/gpu)
 target_include_directories(LLMInfer PUBLIC ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})

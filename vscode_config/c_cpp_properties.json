@@ -5,6 +5,7 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/project/include/base/**",
+                "${workspaceFolder}/project/include/tensor/**",
                 "/usr/local/include/eigen3"   // 确保包含此行
             ],
             "defines": [],

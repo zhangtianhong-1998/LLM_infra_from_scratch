@@ -2,6 +2,7 @@
 #include <gtest/gtest.h>
 #include "utils.h"
 #include "../../project/src/operators/interface.h"
+#include "../../project/include/base/utils.h"
 #include <iostream>
 #include <algorithm>
 
@@ -44,7 +45,7 @@ TEST(test_op, com_matrix_mul)
     std::cout<<"Init took %f seconds.  Begin compute\n"<<t1sum<<std::endl;  // 输出初始化时间
     // 为设备端分配内存，并将主机端数据复制到设备端
     // 分配 GPU 内存，并检查错误
-    checkCudaError(cudaMalloc((void**)&d_A, DSIZE*DSIZE*sizeof(float)), "cudaMalloc for d_a");
+    CHECK_CUDA_ERROR(cudaMalloc((void**)&d_A, DSIZE*DSIZE*sizeof(float)));
     checkCudaError(cudaMalloc((void**)&d_B, DSIZE*DSIZE*sizeof(float)), "cudaMalloc for d_b");
     checkCudaError(cudaMalloc((void**)&d_C, DSIZE*DSIZE*sizeof(float)), "cudaMalloc for d_c");
 
@@ -57,7 +58,7 @@ TEST(test_op, com_matrix_mul)
 
     // 将结果从设备端复制回主机端
     checkCudaError(cudaMemcpy(h_C, d_C, DSIZE*DSIZE*sizeof(float), cudaMemcpyDeviceToHost), "cudaMemcpy for d_b");
-
+    CHECK_LAST_KERNEL();
     // 计算完成，记录时间
     t2 = clock();
     t2sum = ((double)(t2-t1))/CLOCKS_PER_SEC;  // 计算计算时间

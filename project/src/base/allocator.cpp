@@ -30,62 +30,63 @@ namespace mbase
     }
 
     template <typename T>
-    void AllocatorManager<T>::memcpy(const void* src_data, void* dest_data, size_t byte_size,
-                                     MemcpyDirection memcpy_kind, void* stream) const
+    void AllocatorManager<T>::memcpy(const T* src_data, T* dest_data, size_t byte_size,
+                                    MemcpyDirection memcpy_kind, void* stream, bool need_sync) const 
     {
         if (!src_data || !dest_data || byte_size == 0)
+        {
             return;
+        }
 
         int device_id = get_device_id();
-        cudaStream_t stream_ = nullptr;
-        if (stream)
-            stream_ = static_cast<cudaStream_t>(stream);
+        cudaStream_t stream_ = stream ? static_cast<cudaStream_t>(stream) : nullptr;
 
-        if (memcpy_kind == MemcpyDirection::CPU2CPU) 
-        {
-            std::memcpy(dest_data, src_data, byte_size);
-        } 
-        else if (memcpy_kind == MemcpyDirection::CPU2CUDA) 
-        {
-            cudaSetDevice(device_id);               
-            if (!stream_) 
+        // enum __device_builtin__ cudaMemcpyKind
+        // {
+        //     cudaMemcpyHostToHost          =   0,      /**< Host   -> Host */
+        //     cudaMemcpyHostToDevice        =   1,      /**< Host   -> Device */
+        //     cudaMemcpyDeviceToHost        =   2,      /**< Device -> Host */
+        //     cudaMemcpyDeviceToDevice      =   3,      /**< Device -> Device */
+        //     cudaMemcpyDefault             =   4       /**< Direction of the transfer is inferred from the pointer values. Requires unified virtual addressing */
+        // };
+
+        auto performMemcpy = [=](cudaMemcpyKind cuda_kind) {
+            cudaSetDevice(device_id);
+            if (stream_) 
             {
-                cudaMemcpy(dest_data, src_data, byte_size, cudaMemcpyHostToDevice);
-            } 
-            else 
-            { 
-                cudaMemcpyAsync(dest_data, src_data, byte_size, cudaMemcpyHostToDevice, stream_);
-                cudaDeviceSynchronize();
-            }
-        } 
-        else if (memcpy_kind == MemcpyDirection::CUDA2CPU) 
-        {
-            cudaSetDevice(device_id);        
-            if (!stream_) 
-            {
-                cudaMemcpy(dest_data, src_data, byte_size, cudaMemcpyDeviceToHost);
+                cudaMemcpyAsync(dest_data, src_data, byte_size, cuda_kind, stream_);
             } 
             else 
             {
-                cudaMemcpyAsync(dest_data, src_data, byte_size, cudaMemcpyDeviceToHost, stream_);
-                cudaDeviceSynchronize();
+                cudaMemcpy(dest_data, src_data, byte_size, cuda_kind);
             }
-        } 
-        else if (memcpy_kind == MemcpyDirection::CUDA2CUDA) 
+        };
+
+        switch (memcpy_kind) 
         {
-            if (!stream_) 
-            {
-                cudaMemcpy(dest_data, src_data, byte_size, cudaMemcpyDeviceToDevice);
-            } 
-            else 
-            {
-                cudaMemcpyAsync(dest_data, src_data, byte_size, cudaMemcpyDeviceToDevice, stream_);
-                cudaDeviceSynchronize();
-            }
-        } 
-        else 
+            case MemcpyDirection::CPU2CPU:
+                std::memcpy(dest_data, src_data, byte_size);
+                break;
+
+            case MemcpyDirection::CPU2CUDA:
+                performMemcpy(cudaMemcpyHostToDevice);
+                break;
+
+            case MemcpyDirection::CUDA2CPU:
+                performMemcpy(cudaMemcpyDeviceToHost);
+                break;
+
+            case MemcpyDirection::CUDA2CUDA:
+                performMemcpy(cudaMemcpyDeviceToDevice);
+                break;
+
+            default:
+                throw std::runtime_error("Unknown Memcpy Direction");
+        }
+
+        if (stream_)
         {
-            throw std::runtime_error("Unknown Memcpy Direction");
+            cudaStreamSynchronize(stream_);
         }
     }
 

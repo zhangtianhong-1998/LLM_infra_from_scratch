@@ -20,6 +20,8 @@ set(DIR_TEST_OP
     ${CMAKE_SOURCE_DIR}/test/cuda_api_test/cuda_api_test.cpp
     ${CMAKE_SOURCE_DIR}/test/eigen_test/hello_eigen.cpp
     ${CMAKE_SOURCE_DIR}/test/base/cpu_allocator_test.cpp
+    ${CMAKE_SOURCE_DIR}/test/tensor/test_memory.cpp
+    ${CMAKE_SOURCE_DIR}/test/tensor/test_tensor.cpp
 )
 
 include_directories(${EIGEN3_INCLUDE_DIRS}) # 新增

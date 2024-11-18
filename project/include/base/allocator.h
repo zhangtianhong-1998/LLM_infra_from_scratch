@@ -13,6 +13,7 @@ namespace mbase
         CUDA2CPU = 2,
         CUDA2CUDA = 3,
     };
+    
     /******************************内存管理基类***************************************** */
     template <typename T>
     class AllocatorManager
@@ -24,7 +25,10 @@ namespace mbase
             int device_id_ = 0;
 
         public:
-            explicit AllocatorManager(DeviceType device, int device_id = 0) : device_(device), device_id_(device_id) {}
+            // 无参构造函数，设置默认值
+            AllocatorManager(DeviceType device = DeviceType::HOST, int device_id = 0)
+                : device_(device), device_id_(device_id) {}
+
             // 虚函数，拿到设备
             virtual DeviceType get_device_type() const { return device_; }
             // 对于多卡的设备编号
@@ -40,8 +44,9 @@ namespace mbase
             virtual void release(T* data) const;
 
 
-            virtual void memcpy(const void* src_data, void* dest_data, size_t byte_size,
-                                MemcpyDirection memcpy_kind = MemcpyDirection::CPU2CPU, void* stream = nullptr
+            virtual void memcpy(const T* src_data, T* dest_data, size_t byte_size,
+                                MemcpyDirection memcpy_kind = MemcpyDirection::CPU2CPU, void* stream = nullptr,
+                                bool need_sync = false
                                 ) const;
 
             virtual void reset_zero(T* data, size_t byte_size, void* stream = nullptr) const;

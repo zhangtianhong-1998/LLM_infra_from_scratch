@@ -5,19 +5,19 @@
 #include "utils.h"
 #include "memory_manager.h"
 
-TEST(test_cpu_allocator, cpu_allocatorManager) 
+TEST(test_tensor, cpu_allocatorManager) 
 {
     // 创建共享指针形式的 CPUAllocatorManager<int> 实例
-    auto int_allocator = std::make_shared<mbase::CPUAllocatorManager<int>>();
+    auto int_allocator = std::make_shared<mbase::CPUAllocatorManager<float>>();
 
     // 使用共享指针 int_allocator 创建 MemoryManager 实例，分配100个 int 类型的空间
-    mbase::MemoryManager<int> managed_memory(100 * sizeof(int), int_allocator);
+    mbase::MemoryManager<float> managed_memory(100 * sizeof(float), int_allocator);
 
     // 获取数据指针
-    int* data = managed_memory.data();
+    float* data = managed_memory.data();
 
 
-    managed_memory.allocator_manager()->reset_zero(data, 100 * sizeof(int));
+    managed_memory.allocator_manager()->reset_zero(data, 100 * sizeof(float));
 
     // // 打印第一个元素以检查是否已初始化为零
     for(int i=0; i<100; i++)

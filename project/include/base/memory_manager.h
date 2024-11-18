@@ -20,6 +20,11 @@ namespace mbase
             std::unique_ptr<T[]> data_;           // 使用智能指针管理数据
             std::shared_ptr<AllocatorManager<T>> allocator_manager_; 
             bool use_external_ = false; //是否使用外部传入的地址， 否则就需要自己内部对维护指针的生命周期
+
+
+            std::vector<int64_t> slice_offsets_;
+            std::vector<size_t> slice_dims_;
+
         public:
             explicit MemoryManager() = default; // 显式构造
 
@@ -33,9 +38,18 @@ namespace mbase
             bool allocate();
 
             //对外的数据指针  访问
-            T* data();
-
+            T* data();                // 非 const 版本
+            const T* data() const;    // const 版本
+            size_t byte_size() const { return byte_size_; }
             std::shared_ptr<AllocatorManager<T>> allocator_manager() const;
+
+            // 拷贝 
+            void memory_copy(const MemoryManager<T>& memory) const;
+            void memory_copy(const MemoryManager<T>* memory) const;
+            void memory_copy_impl(const MemoryManager<T>* memory) const;
+
+            void set_slice_offsets(const std::vector<int64_t>& offsets, const std::vector<size_t>& new_dims);
+
     };
     
     

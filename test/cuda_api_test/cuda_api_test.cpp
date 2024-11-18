@@ -4,6 +4,7 @@
 #include "../../project/src/operators/interface.h"
 #include <iostream>
 #include <algorithm>
+#include "../../project/include/base/utils.h"
 
 TEST(test_cuda_api, cuda_Managed) 
 {
@@ -45,4 +46,10 @@ TEST(test_cuda_api, cuda_Managed)
 
     cudaFree(d_sum);
     cudaFree(d_A);
+}
+
+
+TEST(test_cuda_api, cuda_info)
+{
+    getDeviceInfo();
 }
